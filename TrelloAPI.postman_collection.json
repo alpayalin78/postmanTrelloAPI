@@ -1,0 +1,2596 @@
+{
+	"info": {
+		"_postman_id": "f1ba7b75-1c98-4b9a-9432-70e20573816f",
+		"name": "TrelloAPI",
+		"description": "[https://www.postman.com/templates/78475d97-9a36-4731-ab24-9adf6a94d0fb/Conditional-workflow](https://www.postman.com/templates/78475d97-9a36-4731-ab24-9adf6a94d0fb/Conditional-workflow)\n\n**Response'un schema kontrolü:**\n\n- [https://learning.postman.com/docs/tests-and-scripts/write-scripts/postman-sandbox-api-reference/#validate-response-data-with-a-json-schema](https://learning.postman.com/docs/tests-and-scripts/write-scripts/postman-sandbox-api-reference/#validate-response-data-with-a-json-schema)\n    \n\n**İstenilirse, Collection Run yapıldığında spesifik bir request ard arda tetiklenebilir.(Belirtilen request'in ismi verilerek bu gerçekleşir. Manuel olarak \"Send\" tetiklendiğinde bu method geçersizdir:**\n\n- [https://learning.postman.com/docs/tests-and-scripts/write-scripts/postman-sandbox-api-reference/#script-workflows](https://learning.postman.com/docs/tests-and-scripts/write-scripts/postman-sandbox-api-reference/#script-workflows)\n    \n\n**Excel datası yükleyerek yapma:**\n\n- [https://learning.postman.com/docs/collections/running-collections/working-with-data-files/](https://learning.postman.com/docs/collections/running-collections/working-with-data-files/)\n    \n- [https://www.postman.com/templates/6a8f6393-58ab-4458-944c-7fc8f08448da/Run-collection-with-data-file](https://www.postman.com/templates/6a8f6393-58ab-4458-944c-7fc8f08448da/Run-collection-with-data-file)\n    \n\n**Script içerisinden kod ile \"istek\" atma:**\n\n- [https://learning.postman.com/docs/tests-and-scripts/write-scripts/postman-sandbox-api-reference/#script-with-request-data](https://learning.postman.com/docs/tests-and-scripts/write-scripts/postman-sandbox-api-reference/#script-with-request-data)\n    \n- [https://learning.postman.com/docs/tests-and-scripts/write-scripts/postman-sandbox-api-reference/#send-requests-from-scripts](https://learning.postman.com/docs/tests-and-scripts/write-scripts/postman-sandbox-api-reference/#send-requests-from-scripts)\n    \n\n**Eğer İstek atlanmak istiyorsa, pre-request içerisinde kullanılabilir:**\n\n- [https://learning.postman.com/docs/tests-and-scripts/write-scripts/postman-sandbox-api-reference/#skip-request-run-from-pre-request-scripts](https://learning.postman.com/docs/tests-and-scripts/write-scripts/postman-sandbox-api-reference/#skip-request-run-from-pre-request-scripts)\n    \n\n## [Execution order of scripts](https://learning.postman.com/docs/tests-and-scripts/write-scripts/intro-to-scripts/#execution-order-of-scripts)\n\nIn Postman, the script execution order for a single request looks like this:\n\n- A pre-request script associated with a request will execute before the request is sent\n    \n- A post-response script associated with a request will execute after the request is sent\n    \n\n<img src=\"https://assets.postman.com/postman-docs/v11/req-resp-v11.jpg\" alt=\"Workflow for single request\">\n\n---\n\n- **Global Variables:** Tüm koleksiyonlar ve istekler için geçerli; uygulama genelinde kullanılabilir.\n    \n- **Collection Variables:** Sadece belirli bir koleksiyonda geçerli; koleksiyona özgü bilgileri depolar.\n    \n- **Environment Variables:** Belirli bir ortamda geçerli; farklı ortamlar için farklı değerler atanabilir\n    \n\nEndFragment\n\nStartFragment\n\n### Kullanım Senaryosu\n\n- Eğer bir API anahtarını tüm Postman projelerinde kullanıyorsanız, bunu **global variable** olarak tanımlarsınız.\n    \n- Eğer bir API'nin farklı test senaryoları için farklı kimlik bilgilerine ihtiyacı varsa, bunları **collection variable** olarak tanımlarsınız.\n    \n- Geliştirme, test ve üretim ortamları için farklı URL'ler kullanıyorsanız, bu URL'leri **environment variable** olarak tanımlayabilirsiniz.\n    \n\nEndFragment\n\nStartFragment\n\n### Değişken Kullanım Önceliği\n\n1. **Environment Variables:** Eğer bir ortam değişkeni tanımlanmışsa, bu en yüksek önceliğe sahiptir. Yani, istek atıldığında aynı isimde bir environment variable varsa, bu kullanılacaktır.\n    \n2. **Collection Variables:** Eğer ortam değişkeni yoksa veya kullanılmıyorsa, bir koleksiyon değişkeni varsa, bu ikinci sırada kullanılacaktır.\n    \n3. **Global Variables:** Eğer yukarıdaki iki katmanda değişken yoksa, global variable kullanılır.\n    \n\nEndFragment",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "16347668"
+	},
+	"item": [
+		{
+			"name": "Board Requests",
+			"item": [
+				{
+					"name": "[BOARD] Create a Board",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// İlk oluşturulacak Board için isim oluşturulur\r",
+									"const characters = 'ACDEFGHI0123456789'\r",
+									"\r",
+									"let randomNameForBoard = '';\r",
+									"\r",
+									"for(let i=0; i<10; i++){\r",
+									"    randomNameForBoard += characters.charAt(Math.floor(Math.random() * characters.length));\r",
+									"}\r",
+									"\r",
+									"pm.environment.set(\"temporary_variable_board_name\", randomNameForBoard)\r",
+									"\r",
+									"//happy path - dolu isim gönderilerek başarılı bir board oluşturulur\r",
+									"if (pm.environment.get('ortam_degiskeni') === 'happy'){\r",
+									"    console.log('PRE-REQUEST happy içerisindeyiz.')\r",
+									"    pm.environment.set(\"board_name\", randomNameForBoard)\r",
+									"}\r",
+									"\r",
+									"//sad path - Boş isim gönderilerek hata alınır\r",
+									"else if (pm.environment.get('ortam_degiskeni') === 'sad'){\r",
+									"    console.log('PRE-REQUEST sad içerisindeyiz.')\r",
+									"    pm.environment.set(\"board_name\", '')\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// response JSON'ı çekilir.\r",
+									"const jsonData = pm.response.json();\r",
+									"\r",
+									"//Happy Path - ortam değişkeni kontrolü yapılır Environment ile.\r",
+									"if (pm.environment.get('ortam_degiskeni') === 'happy'){\r",
+									"    // Status Code kontrolü yapılır. 200 beklenir.\r",
+									"    pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    \r",
+									"    //Headers Controlü yapılır.\r",
+									"    pm.test(\"Content-Type header is Application/Json\", () =>\r",
+									"    {\r",
+									"        pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json');\r",
+									"    });\r",
+									"\r",
+									"    //Schema kontrolü yapılır.\r",
+									"    pm.test(\"Schema is correct!\", function() \r",
+									"    {\r",
+									"        const schema = {\r",
+									"            \"type\": \"object\",\r",
+									"            \"properties\": {\r",
+									"                \"id\": {\r",
+									"                    \"type\": \"string\"\r",
+									"                },\r",
+									"                \"name\": {\r",
+									"                    \"type\": \"string\"\r",
+									"                },\r",
+									"                \"desc\": {\r",
+									"                    \"type\": \"string\"\r",
+									"                },\r",
+									"                \"descData\":{\r",
+									"                    \"oneOf\": [\r",
+									"                        {\"type\": \"string\"},\r",
+									"                        {\"type\": \"null\"},\r",
+									"                    ]\r",
+									"                },\r",
+									"                \"closed\": {\r",
+									"                    \"type\": \"boolean\"\r",
+									"                },\r",
+									"                \"idOrganization\": {\r",
+									"                    \"type\": \"string\"\r",
+									"                },\r",
+									"                \"idEnterprise\": {\r",
+									"                    \"oneOf\": [\r",
+									"                        {\"type\": \"string\"},\r",
+									"                        {\"type\": \"null\"},\r",
+									"                    ]\r",
+									"                },\r",
+									"                \"pinned\": {\r",
+									"                    \"type\": \"boolean\"\r",
+									"                },\r",
+									"                \"url\": {\r",
+									"                    \"type\": \"string\"\r",
+									"                },\r",
+									"                \"shortUrl\": {\r",
+									"                    \"type\": \"string\"\r",
+									"                },\r",
+									"                \"prefs\": {\r",
+									"                    \"type\": \"object\",\r",
+									"                    \"properties\":{\r",
+									"                        \"permissionLevel\":{\r",
+									"                            \"type\": \"string\"\r",
+									"                        },\r",
+									"                        \"hideVotes\":{\r",
+									"                            \"type\": \"boolean\"\r",
+									"                        }, \r",
+									"                        \"voting\":{\r",
+									"                            \"type\": \"string\"\r",
+									"                        },\r",
+									"                        \"comments\":{\r",
+									"                            \"type\": \"string\"\r",
+									"                        },\r",
+									"                        \"invitations\":{\r",
+									"                            \"type\": \"string\"\r",
+									"                        },\r",
+									"                        \"selfJoin\":{\r",
+									"                            \"type\": \"boolean\"\r",
+									"                        },\r",
+									"                        \"cardCovers\":{\r",
+									"                            \"type\": \"boolean\"\r",
+									"                        },                \r",
+									"                        \"cardCounts\":{\r",
+									"                            \"type\": \"boolean\"\r",
+									"                        },                  \r",
+									"                        \"isTemplate\":{\r",
+									"                            \"type\": \"boolean\"\r",
+									"                        },                   \r",
+									"                        \"cardAging\":{\r",
+									"                            \"type\": \"string\"\r",
+									"                        },            \r",
+									"                        \"calendarFeedEnabled\":{\r",
+									"                            \"type\": \"boolean\"\r",
+									"                        },\r",
+									"                        \"hiddenPluginBoardButtons\":{\r",
+									"                            \"type\": \"array\"\r",
+									"                        },\r",
+									"                        \"switcherViews\":{\r",
+									"                            \"type\": \"array\",\r",
+									"                            \"items\":{\r",
+									"                                \"type\": \"object\",\r",
+									"                                \"properties\": {\r",
+									"                                    \"viewType\": {\"type\": \"string\"},\r",
+									"                                    \"enabled\": {\"type\": \"boolean\"}\r",
+									"                                },\r",
+									"                                \"required\": [\"viewType\", \"enabled\"]\r",
+									"                            }\r",
+									"                        },\r",
+									"                        \"background\": { \"type\": [\"string\"] },\r",
+									"                    \"backgroundColor\": { \"type\": [\"string\"] },\r",
+									"                    \"backgroundImage\": {\r",
+									"                \"oneOf\": [\r",
+									"                    { \"type\": \"string\" },\r",
+									"                    { \"type\": \"null\" }\r",
+									"                ]\r",
+									"            },\r",
+									"                    \"backgroundTile\": { \"type\": [\"boolean\"] },\r",
+									"                    \"backgroundBrightness\": { \"type\": [\"string\"] },\r",
+									"                    \"sharedSourceUrl\": {\r",
+									"                \"oneOf\": [\r",
+									"                    { \"type\": \"string\" },\r",
+									"                    { \"type\": \"null\" }\r",
+									"                ]\r",
+									"            },\r",
+									"                    \"backgroundImageScaled\": {\r",
+									"                \"oneOf\": [\r",
+									"                    { \"type\": \"string\" },\r",
+									"                    { \"type\": \"null\" }\r",
+									"                ]\r",
+									"            },\r",
+									"                    \"backgroundBottomColor\": { \"type\": [\"string\"] },\r",
+									"                    \"backgroundTopColor\": { \"type\": [\"string\"] },\r",
+									"                    \"canBePublic\": { \"type\": [\"boolean\"] },\r",
+									"                    \"canBeEnterprise\": { \"type\": [\"boolean\"] },\r",
+									"                    \"canBeOrg\": { \"type\": [\"boolean\"] },\r",
+									"                    \"canBePrivate\": { \"type\": [\"boolean\"] },\r",
+									"                    \"canInvite\": { \"type\": [\"boolean\"] }\r",
+									"                },\r",
+									"                \"required\": [\r",
+									"                    \"permissionLevel\",\r",
+									"                    \"hideVotes\",\r",
+									"                    \"voting\",\r",
+									"                    \"comments\",\r",
+									"                    \"invitations\",\r",
+									"                    \"selfJoin\",\r",
+									"                    \"cardCovers\",\r",
+									"                    \"cardCounts\",\r",
+									"                    \"isTemplate\",\r",
+									"                    \"cardAging\",\r",
+									"                    \"calendarFeedEnabled\",\r",
+									"                    \"hiddenPluginBoardButtons\",\r",
+									"                    \"switcherViews\",\r",
+									"                    \"background\",\r",
+									"                    \"backgroundColor\",\r",
+									"                    \"backgroundTile\",\r",
+									"                    \"backgroundBrightness\",\r",
+									"                    \"backgroundBottomColor\",\r",
+									"                    \"backgroundTopColor\",\r",
+									"                    \"canBePublic\",\r",
+									"                    \"canBeEnterprise\",\r",
+									"                    \"canBeOrg\",\r",
+									"                    \"canBePrivate\",\r",
+									"                    \"canInvite\"\r",
+									"                ]\r",
+									"            },\r",
+									"            \"labelNames\": {\r",
+									"                \"type\": \"object\",\r",
+									"                \"properties\": {\r",
+									"                    \"green\": { \"type\": [\"string\"] },\r",
+									"                    \"yellow\": { \"type\": [\"string\"] },\r",
+									"                    \"orange\": { \"type\": [\"string\"] },\r",
+									"                    \"red\": { \"type\": [\"string\"] },\r",
+									"                    \"purple\": { \"type\": [\"string\"] },\r",
+									"                    \"blue\": { \"type\": [\"string\"] },\r",
+									"                    \"sky\": { \"type\": [\"string\"] },\r",
+									"                    \"lime\": { \"type\": [\"string\"] },\r",
+									"                    \"pink\": { \"type\": [\"string\"] },\r",
+									"                    \"black\": { \"type\": [\"string\"] },\r",
+									"                    \"green_dark\": { \"type\": [\"string\"] },\r",
+									"                    \"yellow_dark\": { \"type\": [\"string\"] },\r",
+									"                    \"orange_dark\": { \"type\": [\"string\"] },\r",
+									"                    \"red_dark\": { \"type\": [\"string\"] },\r",
+									"                    \"purple_dark\": { \"type\": [\"string\"] },\r",
+									"                    \"blue_dark\": { \"type\": [\"string\"] },\r",
+									"                    \"sky_dark\": { \"type\": [\"string\"] },\r",
+									"                    \"lime_dark\": { \"type\": [\"string\"] },\r",
+									"                    \"pink_dark\": { \"type\": [\"string\"] },\r",
+									"                    \"black_dark\": { \"type\": [\"string\"] },\r",
+									"                    \"green_light\": { \"type\": [\"string\"] },\r",
+									"                    \"yellow_light\": { \"type\": [\"string\"] },\r",
+									"                    \"orange_light\": { \"type\": [\"string\"] },\r",
+									"                    \"red_light\": { \"type\": [\"string\"] },\r",
+									"                    \"purple_light\": { \"type\": [\"string\"] },\r",
+									"                    \"blue_light\": { \"type\": [\"string\"] },\r",
+									"                    \"sky_light\": { \"type\": [\"string\"] },\r",
+									"                    \"lime_light\": { \"type\": [\"string\"] },\r",
+									"                    \"pink_light\": { \"type\": [\"string\"] },\r",
+									"                    \"black_light\": { \"type\": [\"string\"] }\r",
+									"                }\r",
+									"            }\r",
+									"        },\r",
+									"        \"required\": [\r",
+									"            \"id\",\r",
+									"            \"name\",\r",
+									"            \"desc\",\r",
+									"            \"descData\",\r",
+									"            \"closed\",\r",
+									"            \"idOrganization\",\r",
+									"            \"url\",\r",
+									"            \"shortUrl\",\r",
+									"            \"prefs\",\r",
+									"            \"labelNames\"\r",
+									"        ]\r",
+									"    };\r",
+									"\r",
+									"    //Oluşturduğumuz Schema örneğini, response'ta gelen schema örneği ile karşılaştırıyoruz.\r",
+									"    const Ajv = require(\"ajv\");\r",
+									"    const ajv = new Ajv();\r",
+									"\r",
+									"    const validate = ajv.compile(schema);\r",
+									"    const valid = validate(jsonData);\r",
+									"\r",
+									"    pm.expect(valid, validate.errors).to.be.true;\r",
+									"    });   \r",
+									"    });\r",
+									"\r",
+									"    //Elde edilen Board ID, environment:board_id değişkeni güncellenir.\r",
+									"    pm.environment.set(\"board_id\", jsonData.id)\r",
+									"}\r",
+									"\r",
+									"//Sad Path - ortam değişkeni kontrolü yapılır Environment ile\r",
+									"else if(pm.environment.get('ortam_degiskeni') === 'sad'){\r",
+									"    //Sonraki akışta environment:board_name ile ilgili bir sorun çıkmaması için, yeni bir randomName tanımladım ve ilgili environment için set'ledim.\r",
+									"    const characters = 'ACDEFGHI0123456789'\r",
+									"\r",
+									"    let randomNameForBoard = '';\r",
+									"\r",
+									"    for(let i=0; i<10; i++){\r",
+									"        randomNameForBoard += characters.charAt(Math.floor(Math.random() * characters.length));\r",
+									"    }\r",
+									"\r",
+									"    pm.environment.set(\"board_name\", randomNameForBoard)\r",
+									"\r",
+									"    //Başarısız istek sonucu bir Board oluşturduğumuz için, bu kısımda Send-Request ile yeni bir Board oluşturuyoruz ve bu board'dan elde edilen \"board_id\"'yi, environment:board_id güncellenir.\r",
+									"    let randomNameForBoardSendRequest = \"Random Name\";\r",
+									"    let token = pm.collectionVariables.get('token');\r",
+									"    let key = pm. collectionVariables.get('key');\r",
+									"\r",
+									"    let url = `https://api.trello.com/1/boards/?name=${randomNameForBoardSendRequest}&token=${token}&key=${key}`;\r",
+									"\r",
+									"    pm.sendRequest({\r",
+									"        url: url,\r",
+									"        method: \"POST\"\r",
+									"    }, function (err, response) {\r",
+									"        if (err) {\r",
+									"            console.log('Hata:', err);\r",
+									"            return;\r",
+									"        }\r",
+									"        const jsonData = response.json();\r",
+									"        pm.environment.set('board_id', jsonData.id)\r",
+									"        });\r",
+									"\r",
+									"        // Status Code kontrolü yapılır. 400 beklenir. Burada aslında pm.response.to.have kısmı, sendRequest ile atılan isteği değil, normal atılan Postman İsteğinin sonucunu kontrol eder.\r",
+									"        pm.test(\"Status code is 400\", function () {\r",
+									"            pm.response.to.have.status(400);\r",
+									"            });\r",
+									"        \r",
+									"        // JSON Body kontrolü yapılır.\r",
+									"        pm.test(\"As expected, message & error occurred,\", function () {\r",
+									"            pm.expect(jsonData.message).to.equal('invalid value for name')\r",
+									"            pm.expect(jsonData.error).to.equal('ERROR')\r",
+									"            });\r",
+									"            \r",
+									"        //Headers Controlü yapılır.\r",
+									"        pm.test(\"Content-Type header is Application/Json\", () =>\r",
+									"            {\r",
+									"            pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json');\r",
+									"            });\r",
+									"}\r",
+									"\r",
+									"//Bir sonraki tetiklenecek İsteği belirtiriz.\r",
+									"pm.execution.setNextRequest('[BOARD] Get a Board')\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "https://api.trello.com/1/boards/?name={{board_name}}&token={{token}}",
+							"protocol": "https",
+							"host": [
+								"api",
+								"trello",
+								"com"
+							],
+							"path": [
+								"1",
+								"boards",
+								""
+							],
+							"query": [
+								{
+									"key": "name",
+									"value": "{{board_name}}"
+								},
+								{
+									"key": "token",
+									"value": "{{token}}"
+								}
+							]
+						},
+						"description": "Generated from cURL: curl --request POST \\\r\n  --url 'https://api.trello.com/1/boards/?name={name}&key=APIKey&token=APIToken'"
+					},
+					"response": []
+				},
+				{
+					"name": "[BOARD] Get a Board",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"//happy path\r",
+									"if (pm.environment.get('ortam_degiskeni') === 'happy'){\r",
+									"}\r",
+									"\r",
+									"//sad path - board_id önceki istekten environmentta güncellenmiş olarak var olacak. Burada da bu isteği başarısız atabilmemiz için, \"board_id\"nin \"null\" değerine eşit olması lazım. En sonunda tüm testlerimiz bu istek için biteceği zaman, board_id'nin \"null\" değil en baştaki değeri alabilmesi için, değer ilk öcne geçici environment:temporary_variable_board_id değerine atanır, sonrasında Post-Response içerisinden tekrardan environment:temporary_variable_board_id içerisine atanır.\r",
+									"else if (pm.environment.get('ortam_degiskeni') === 'sad'){\r",
+									"    pm.environment.set('temporary_variable_board_id', pm.environment.get('board_id'))\r",
+									"    pm.environment.set(\"board_id\", null)\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"\r",
+									"\r",
+									"//Happy Path - ortam değişkeni kontrolü yapılır Environment ile.\r",
+									"if (pm.environment.get('ortam_degiskeni') === 'happy'){\r",
+									"    // response JSON'ı çekilir.\r",
+									"    const jsonData = pm.response.json();\r",
+									"\r",
+									"    // Status Code kontrolü yapılır. 200 beklenir.\r",
+									"    pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"\r",
+									"    \r",
+									"    //Headers Controlü yapılır\r",
+									"    pm.test(\"Content-Type header is Application/Json\", () =>\r",
+									"    {\r",
+									"        pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json');\r",
+									"    });\r",
+									"\r",
+									"    //Schema kontrolü yapılır\r",
+									"    pm.test(\"Schema is correct!\", function() \r",
+									"    {\r",
+									"        const schema = {\r",
+									"            \"type\": \"object\",\r",
+									"            \"properties\": {\r",
+									"                \"id\": {\r",
+									"                    \"type\": \"string\"\r",
+									"                },\r",
+									"                \"name\": {\r",
+									"                    \"type\": \"string\"\r",
+									"                },\r",
+									"                \"desc\": {\r",
+									"                    \"type\": \"string\"\r",
+									"                },\r",
+									"                \"descData\":{\r",
+									"                    \"oneOf\": [\r",
+									"                        {\"type\": \"string\"},\r",
+									"                        {\"type\": \"null\"},\r",
+									"                    ]\r",
+									"                },\r",
+									"                \"closed\": {\r",
+									"                    \"type\": \"boolean\"\r",
+									"                },\r",
+									"                \"idOrganization\": {\r",
+									"                    \"type\": \"string\"\r",
+									"                },\r",
+									"                \"idEnterprise\": {\r",
+									"                    \"oneOf\": [\r",
+									"                        {\"type\": \"string\"},\r",
+									"                        {\"type\": \"null\"},\r",
+									"                    ]\r",
+									"                },\r",
+									"                \"pinned\": {\r",
+									"                    \"type\": \"boolean\"\r",
+									"                },\r",
+									"                \"url\": {\r",
+									"                    \"type\": \"string\"\r",
+									"                },\r",
+									"                \"shortUrl\": {\r",
+									"                    \"type\": \"string\"\r",
+									"                },\r",
+									"                \"prefs\": {\r",
+									"                    \"type\": \"object\",\r",
+									"                    \"properties\":{\r",
+									"                        \"permissionLevel\":{\r",
+									"                            \"type\": \"string\"\r",
+									"                        },\r",
+									"                        \"hideVotes\":{\r",
+									"                            \"type\": \"boolean\"\r",
+									"                        }, \r",
+									"                        \"voting\":{\r",
+									"                            \"type\": \"string\"\r",
+									"                        },\r",
+									"                        \"comments\":{\r",
+									"                            \"type\": \"string\"\r",
+									"                        },\r",
+									"                        \"invitations\":{\r",
+									"                            \"type\": \"string\"\r",
+									"                        },\r",
+									"                        \"selfJoin\":{\r",
+									"                            \"type\": \"boolean\"\r",
+									"                        },\r",
+									"                        \"cardCovers\":{\r",
+									"                            \"type\": \"boolean\"\r",
+									"                        },                \r",
+									"                        \"cardCounts\":{\r",
+									"                            \"type\": \"boolean\"\r",
+									"                        },                  \r",
+									"                        \"isTemplate\":{\r",
+									"                            \"type\": \"boolean\"\r",
+									"                        },                   \r",
+									"                        \"cardAging\":{\r",
+									"                            \"type\": \"string\"\r",
+									"                        },            \r",
+									"                        \"calendarFeedEnabled\":{\r",
+									"                            \"type\": \"boolean\"\r",
+									"                        },\r",
+									"                        \"hiddenPluginBoardButtons\":{\r",
+									"                            \"type\": \"array\"\r",
+									"                        },\r",
+									"                        \"switcherViews\":{\r",
+									"                            \"type\": \"array\",\r",
+									"                            \"items\":{\r",
+									"                                \"type\": \"object\",\r",
+									"                                \"properties\": {\r",
+									"                                    \"viewType\": {\"type\": \"string\"},\r",
+									"                                    \"enabled\": {\"type\": \"boolean\"}\r",
+									"                                },\r",
+									"                                \"required\": [\"viewType\", \"enabled\"]\r",
+									"                            }\r",
+									"                        },\r",
+									"                        \"background\": { \"type\": [\"string\"] },\r",
+									"                    \"backgroundColor\": { \"type\": [\"string\"] },\r",
+									"                    \"backgroundImage\": {\r",
+									"                \"oneOf\": [\r",
+									"                    { \"type\": \"string\" },\r",
+									"                    { \"type\": \"null\" }\r",
+									"                ]\r",
+									"            },\r",
+									"                    \"backgroundTile\": { \"type\": [\"boolean\"] },\r",
+									"                    \"backgroundBrightness\": { \"type\": [\"string\"] },\r",
+									"                    \"sharedSourceUrl\": {\r",
+									"                \"oneOf\": [\r",
+									"                    { \"type\": \"string\" },\r",
+									"                    { \"type\": \"null\" }\r",
+									"                ]\r",
+									"            },\r",
+									"                    \"backgroundImageScaled\": {\r",
+									"                \"oneOf\": [\r",
+									"                    { \"type\": \"string\" },\r",
+									"                    { \"type\": \"null\" }\r",
+									"                ]\r",
+									"            },\r",
+									"                    \"backgroundBottomColor\": { \"type\": [\"string\"] },\r",
+									"                    \"backgroundTopColor\": { \"type\": [\"string\"] },\r",
+									"                    \"canBePublic\": { \"type\": [\"boolean\"] },\r",
+									"                    \"canBeEnterprise\": { \"type\": [\"boolean\"] },\r",
+									"                    \"canBeOrg\": { \"type\": [\"boolean\"] },\r",
+									"                    \"canBePrivate\": { \"type\": [\"boolean\"] },\r",
+									"                    \"canInvite\": { \"type\": [\"boolean\"] }\r",
+									"                },\r",
+									"                \"required\": [\r",
+									"                    \"permissionLevel\",\r",
+									"                    \"hideVotes\",\r",
+									"                    \"voting\",\r",
+									"                    \"comments\",\r",
+									"                    \"invitations\",\r",
+									"                    \"selfJoin\",\r",
+									"                    \"cardCovers\",\r",
+									"                    \"cardCounts\",\r",
+									"                    \"isTemplate\",\r",
+									"                    \"cardAging\",\r",
+									"                    \"calendarFeedEnabled\",\r",
+									"                    \"hiddenPluginBoardButtons\",\r",
+									"                    \"switcherViews\",\r",
+									"                    \"background\",\r",
+									"                    \"backgroundColor\",\r",
+									"                    \"backgroundTile\",\r",
+									"                    \"backgroundBrightness\",\r",
+									"                    \"backgroundBottomColor\",\r",
+									"                    \"backgroundTopColor\",\r",
+									"                    \"canBePublic\",\r",
+									"                    \"canBeEnterprise\",\r",
+									"                    \"canBeOrg\",\r",
+									"                    \"canBePrivate\",\r",
+									"                    \"canInvite\"\r",
+									"                ]\r",
+									"            },\r",
+									"            \"labelNames\": {\r",
+									"                \"type\": \"object\",\r",
+									"                \"properties\": {\r",
+									"                    \"green\": { \"type\": [\"string\"] },\r",
+									"                    \"yellow\": { \"type\": [\"string\"] },\r",
+									"                    \"orange\": { \"type\": [\"string\"] },\r",
+									"                    \"red\": { \"type\": [\"string\"] },\r",
+									"                    \"purple\": { \"type\": [\"string\"] },\r",
+									"                    \"blue\": { \"type\": [\"string\"] },\r",
+									"                    \"sky\": { \"type\": [\"string\"] },\r",
+									"                    \"lime\": { \"type\": [\"string\"] },\r",
+									"                    \"pink\": { \"type\": [\"string\"] },\r",
+									"                    \"black\": { \"type\": [\"string\"] },\r",
+									"                    \"green_dark\": { \"type\": [\"string\"] },\r",
+									"                    \"yellow_dark\": { \"type\": [\"string\"] },\r",
+									"                    \"orange_dark\": { \"type\": [\"string\"] },\r",
+									"                    \"red_dark\": { \"type\": [\"string\"] },\r",
+									"                    \"purple_dark\": { \"type\": [\"string\"] },\r",
+									"                    \"blue_dark\": { \"type\": [\"string\"] },\r",
+									"                    \"sky_dark\": { \"type\": [\"string\"] },\r",
+									"                    \"lime_dark\": { \"type\": [\"string\"] },\r",
+									"                    \"pink_dark\": { \"type\": [\"string\"] },\r",
+									"                    \"black_dark\": { \"type\": [\"string\"] },\r",
+									"                    \"green_light\": { \"type\": [\"string\"] },\r",
+									"                    \"yellow_light\": { \"type\": [\"string\"] },\r",
+									"                    \"orange_light\": { \"type\": [\"string\"] },\r",
+									"                    \"red_light\": { \"type\": [\"string\"] },\r",
+									"                    \"purple_light\": { \"type\": [\"string\"] },\r",
+									"                    \"blue_light\": { \"type\": [\"string\"] },\r",
+									"                    \"sky_light\": { \"type\": [\"string\"] },\r",
+									"                    \"lime_light\": { \"type\": [\"string\"] },\r",
+									"                    \"pink_light\": { \"type\": [\"string\"] },\r",
+									"                    \"black_light\": { \"type\": [\"string\"] }\r",
+									"                }\r",
+									"            }\r",
+									"        },\r",
+									"        \"required\": [\r",
+									"            \"id\",\r",
+									"            \"name\",\r",
+									"            \"desc\",\r",
+									"            \"descData\",\r",
+									"            \"closed\",\r",
+									"            \"idOrganization\",\r",
+									"            \"url\",\r",
+									"            \"shortUrl\",\r",
+									"            \"prefs\",\r",
+									"            \"labelNames\"\r",
+									"        ]\r",
+									"    };\r",
+									"    \r",
+									"    //Oluşturduğumuz Schema örneğini, response'ta gelen schema örneği ile karşılaştırıyoruz.\r",
+									"    const Ajv = require(\"ajv\");\r",
+									"    const ajv = new Ajv();\r",
+									"\r",
+									"    const validate = ajv.compile(schema);\r",
+									"    const valid = validate(jsonData);\r",
+									"\r",
+									"    pm.expect(valid, validate.errors).to.be.true;\r",
+									"    });   \r",
+									"    });\r",
+									"}\r",
+									"\r",
+									"//Sad Path - ortam değişkeni kontrolü yapılır Environment ile\r",
+									"else if (pm.environment.get('ortam_degiskeni') === 'sad'){\r",
+									"    // Status Code kontrolü yapılır. 400 beklenir.\r",
+									"    pm.test(\"Status code is 400\", function () {\r",
+									"        pm.response.to.have.status(400);\r",
+									"        });\r",
+									"\r",
+									"    // pm.response.text(); kullanıldı sebebi: dönen yanıt başarısız olduğu için json formatında değil text-plain olarak verilmiş o yüzden JSON formatında çekemeyecek bunu. biz de çekebileceği tipte verdik.\r",
+									"    pm.test(\"As expected, message & error occurred,\", function () {\r",
+									"        pm.expect(pm.response.text()).to.equal('invalid id')\r",
+									"        });\r",
+									"\r",
+									"    //Headers kontrolü.\r",
+									"    pm.test(\"Content-Type header is text/plain\", () =>\r",
+									"        {\r",
+									"        pm.expect(pm.response.headers.get('Content-Type')).to.include('text/plain');\r",
+									"        });\r",
+									"\r",
+									"    //Geçici olarak atanan board_id değeri, environment:board_id'ye tekrar sıradaki isteklerde kullanabilmek için geri atandı.\r",
+									"    pm.environment.set('board_id', pm.environment.get('temporary_variable_board_id'));\r",
+									"}\r",
+									"// invalid id 400\r",
+									"\r",
+									"pm.execution.setNextRequest('[BOARD] Create a List on Board')\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "https://api.trello.com/1/boards/:board_id?key={{key}}&token={{token}}",
+							"protocol": "https",
+							"host": [
+								"api",
+								"trello",
+								"com"
+							],
+							"path": [
+								"1",
+								"boards",
+								":board_id"
+							],
+							"query": [
+								{
+									"key": "key",
+									"value": "{{key}}"
+								},
+								{
+									"key": "token",
+									"value": "{{token}}"
+								}
+							],
+							"variable": [
+								{
+									"key": "board_id",
+									"value": "{{board_id}}"
+								}
+							]
+						},
+						"description": "Generated from cURL: curl --request GET \\\r\n  --url 'https://api.trello.com/1/boards/{id}?key=APIKey&token=APIToken' \\\r\n  --header 'Accept: application/json'"
+					},
+					"response": []
+				},
+				{
+					"name": "[BOARD] Create a List on Board",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// İlk oluşturulacak List için isim oluşturulur\r",
+									"const characters = 'ACDEFGHI0123456789'\r",
+									"\r",
+									"let randomNameForList = '';\r",
+									"\r",
+									"for(let i=0; i<10; i++){\r",
+									"    randomNameForList += characters.charAt(Math.floor(Math.random() * characters.length));\r",
+									"}\r",
+									"\r",
+									"pm.environment.set(\"list_name\", randomNameForList)\r",
+									"\r",
+									"pm.environment.set(\"temporary_variable_list_name\", pm.environment.get(\"list_name\"))\r",
+									"\r",
+									"if (pm.environment.get('ortam_degiskeni') === 'happy'){\r",
+									"}\r",
+									"\r",
+									"//sad path - environment:list_name değişkeni değerine: '' atanır. Bunun sebebi başarısız istek atabilmek için boş gönderilmesi gerekiyor.\r",
+									"else if (pm.environment.get('ortam_degiskeni') === 'sad'){\r",
+									"    pm.environment.set(\"list_name\", '')\r",
+									"}\r",
+									"\r",
+									"//400: invalid value for name"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"\r",
+									"//Happy Path - ortam değişkeni kontrolü yapılır Environment ile.\r",
+									"if (pm.environment.get('ortam_degiskeni') === 'happy'){\r",
+									"    // response JSON'ı çekilir.\r",
+									"    const jsonData = pm.response.json();\r",
+									"    \r",
+									"    // Status Code kontrolü yapılır. 200 beklenir.\r",
+									"    pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    });  \r",
+									"    \r",
+									"    //Headers Kontrolü\r",
+									"    pm.test(\"Content-Type header is Application/Json\", () =>\r",
+									"    {\r",
+									"        pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json');\r",
+									"    });\r",
+									"\r",
+									"    //Schema Kontrolü\r",
+									"    pm.test(\"Schema is correct!\", function() \r",
+									"    {\r",
+									"        const schema = {\r",
+									"            \"type\": \"object\",\r",
+									"            \"properties\": {\r",
+									"                \"id\": {\r",
+									"                    \"type\": \"string\"\r",
+									"                },\r",
+									"                \"name\": {\r",
+									"                    \"type\": \"string\"\r",
+									"                },\r",
+									"                \"closed\": {\r",
+									"                    \"type\": \"boolean\"\r",
+									"                },\r",
+									"                \"color\":{\r",
+									"                    \"oneOf\": [\r",
+									"                        {\"type\": \"string\"},\r",
+									"                        {\"type\": \"null\"},\r",
+									"                    ]\r",
+									"                },\r",
+									"                \"idBoard\": {\r",
+									"                    \"type\": \"string\"\r",
+									"                },\r",
+									"                \"pos\": {\r",
+									"                    \"type\": \"integer\"\r",
+									"                },\r",
+									"                \"type\": {\r",
+									"                    \"oneOf\": [\r",
+									"                        {\"type\": \"string\"},\r",
+									"                        {\"type\": \"null\"},\r",
+									"                    ]\r",
+									"                },\r",
+									"                \"datasource\": {\r",
+									"                    \"type\": \"object\",\r",
+									"                    \"properties\":{\r",
+									"                        \"filter\":{\r",
+									"                            \"type\": \"boolean\"\r",
+									"                        }\r",
+									"                    }},\r",
+									"                \"limits\": {\r",
+									"                    \"type\": \"object\"\r",
+									"                }\r",
+									"            },\r",
+									"            \"required\": [\r",
+									"                \"id\",\r",
+									"                \"name\",\r",
+									"                \"closed\",\r",
+									"                \"color\",\r",
+									"                \"idBoard\",\r",
+									"                \"pos\",\r",
+									"                \"type\",\r",
+									"                \"datasource\",\r",
+									"                \"limits\"\r",
+									"            ]\r",
+									"        };\r",
+									"\r",
+									"        const Ajv = require(\"ajv\");\r",
+									"        const ajv = new Ajv();\r",
+									"\r",
+									"        const validate = ajv.compile(schema);\r",
+									"        const valid = validate(jsonData);\r",
+									"\r",
+									"        pm.expect(valid, validate.errors).to.be.true;\r",
+									"        });\r",
+									"}\r",
+									"\r",
+									"else if (pm.environment.get('ortam_degiskeni') === 'sad'){\r",
+									"    // Status Code kontrolü yapılır. 400 beklenir.\r",
+									"    pm.test(\"Status code is 400\", function () {\r",
+									"        pm.response.to.have.status(400);\r",
+									"        });\r",
+									"\r",
+									"    // pm.response.text(); kullanıldı sebebi: dönen yanıt başarısız olduğu için json formatında değil text-plain olarak verilmiş o yüzden JSON formatında çekemeyecek bunu. biz de çekebileceği tipte verdik.\r",
+									"    pm.test(\"As expected, message & error occurred,\", function () {\r",
+									"        pm.expect(pm.response.text()).to.equal('invalid value for name')\r",
+									"        });\r",
+									"\r",
+									"    //HEADERS CONTROL\r",
+									"    pm.test(\"Content-Type header is text/plain\", () =>\r",
+									"        {\r",
+									"        pm.expect(pm.response.headers.get('Content-Type')).to.include('text/plain');\r",
+									"        });\r",
+									"\r",
+									"    //Geçici olarak atanan board_id değeri, environment:list_name'ye tekrar sıradaki isteklerde kullanabilmek için geri atandı.\r",
+									"    pm.environment.set(\"list_name\", pm.environment.get(\"temporary_variable_list_name\"))\r",
+									"}\r",
+									"// invalid id 400\r",
+									"\r",
+									"pm.execution.setNextRequest('[BOARD] Get Lists on a Board')\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "https://api.trello.com/1/boards/:board_id/lists?name={{list_name}}&key={{key}}&token={{token}}",
+							"protocol": "https",
+							"host": [
+								"api",
+								"trello",
+								"com"
+							],
+							"path": [
+								"1",
+								"boards",
+								":board_id",
+								"lists"
+							],
+							"query": [
+								{
+									"key": "name",
+									"value": "{{list_name}}"
+								},
+								{
+									"key": "key",
+									"value": "{{key}}"
+								},
+								{
+									"key": "token",
+									"value": "{{token}}"
+								}
+							],
+							"variable": [
+								{
+									"key": "board_id",
+									"value": "{{board_id}}"
+								}
+							]
+						},
+						"description": "Generated from cURL: curl --request POST \\\r\n  --url 'https://api.trello.com/1/boards/{id}/lists?name={name}&key=APIKey&token=APIToken' \\\r\n  --header 'Accept: application/json'"
+					},
+					"response": []
+				},
+				{
+					"name": "[BOARD] Get Lists on a Board",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"//happy path\r",
+									"if (pm.environment.get('ortam_degiskeni') === 'happy'){\r",
+									"}\r",
+									"\r",
+									"//sad path - board_id önceki istekten environmentta güncellenmiş olarak var olacak. Burada da bu isteği başarısız atabilmemiz için, \"board_id\"nin \"null\" değerine eşit olması lazım. En sonunda tüm testlerimiz bu istek için biteceği zaman, board_id'nin \"null\" değil en baştaki değeri alabilmesi için, değer ilk öcne geçici environment:temporary_variable_board_id değerine atanır, sonrasında Post-Response içerisinden tekrardan environment:temporary_variable_board_id içerisine atanır.\r",
+									"else if (pm.environment.get('ortam_degiskeni') === 'sad'){\r",
+									"    pm.environment.set('temporary_variable_board_id', pm.environment.get('board_id'))\r",
+									"    pm.environment.set(\"board_id\", null)\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"\r",
+									"//Happy Path - ortam değişkeni kontrolü yapılır Environment ile.\r",
+									"if (pm.environment.get('ortam_degiskeni') === 'happy'){\r",
+									"    // response JSON'ı çekilir.\r",
+									"    const jsonData = pm.response.json();\r",
+									"    \r",
+									"    // Status Code kontrolü yapılır. 200 beklenir.\r",
+									"    pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    });  \r",
+									"    \r",
+									"    //Headers Kontrolü\r",
+									"    pm.test(\"Content-Type header is Application/Json\", () =>\r",
+									"    {\r",
+									"        pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json');\r",
+									"    });\r",
+									"\r",
+									"    //Schema Kontrolü\r",
+									"    pm.test(\"Schema is correct!\", function() \r",
+									"    {\r",
+									"        const schema = {\r",
+									"            \"type\": \"object\",\r",
+									"            \"properties\": {\r",
+									"                \"id\": {\r",
+									"                    \"type\": \"string\"\r",
+									"                },\r",
+									"                \"name\": {\r",
+									"                    \"type\": \"string\"\r",
+									"                },\r",
+									"                \"closed\": {\r",
+									"                    \"type\": \"boolean\"\r",
+									"                },\r",
+									"                \"color\":{\r",
+									"                    \"oneOf\": [\r",
+									"                        {\"type\": \"string\"},\r",
+									"                        {\"type\": \"null\"},\r",
+									"                    ]\r",
+									"                },\r",
+									"                \"idBoard\": {\r",
+									"                    \"type\": \"string\"\r",
+									"                },\r",
+									"                \"pos\": {\r",
+									"                    \"type\": \"integer\"\r",
+									"                },\r",
+									"                \"type\": {\r",
+									"                    \"oneOf\": [\r",
+									"                        {\"type\": \"string\"},\r",
+									"                        {\"type\": \"null\"},\r",
+									"                    ]\r",
+									"                },\r",
+									"                \"datasource\": {\r",
+									"                    \"type\": \"object\",\r",
+									"                    \"properties\":{\r",
+									"                        \"filter\":{\r",
+									"                            \"type\": \"boolean\"\r",
+									"                        }\r",
+									"                    }},\r",
+									"                \"limits\": {\r",
+									"                    \"type\": \"object\"\r",
+									"                }\r",
+									"            },\r",
+									"            \"required\": [\r",
+									"                \"id\",\r",
+									"                \"name\",\r",
+									"                \"closed\",\r",
+									"                \"color\",\r",
+									"                \"idBoard\",\r",
+									"                \"pos\",\r",
+									"                \"type\",\r",
+									"                \"datasource\",\r",
+									"                \"limits\"\r",
+									"            ]\r",
+									"        };\r",
+									"\r",
+									"        const Ajv = require(\"ajv\");\r",
+									"        const ajv = new Ajv();\r",
+									"\r",
+									"        const validate = ajv.compile(schema);\r",
+									"        const valid = validate(jsonData);\r",
+									"\r",
+									"        pm.expect(valid, validate.errors).to.be.true;\r",
+									"        });\r",
+									"}\r",
+									"\r",
+									"else if (pm.environment.get('ortam_degiskeni') === 'sad'){\r",
+									"    // Status Code kontrolü yapılır. 400 beklenir.\r",
+									"    pm.test(\"Status code is 400\", function () {\r",
+									"        pm.response.to.have.status(400);\r",
+									"        });\r",
+									"    \r",
+									"    // pm.response.text(); kullanıldı sebebi: dönen yanıt başarısız olduğu için json formatında değil text-plain olarak verilmiş o yüzden JSON formatında çekemeyecek bunu. biz de çekebileceği tipte verdik.\r",
+									"    pm.test(\"As expected, invalid id appeared,\", function () {\r",
+									"        pm.expect(pm.response.text()).to.equal('invalid id')\r",
+									"        });\r",
+									"\r",
+									"    //Headers Kontrolü\r",
+									"    pm.test(\"Content-Type header is text/plain\", () =>\r",
+									"        {\r",
+									"        pm.expect(pm.response.headers.get('Content-Type')).to.include('text/plain');\r",
+									"        });\r",
+									"\r",
+									"    //Geçici olarak atanan board_id değeri, environment:board_id'ye tekrar sıradaki isteklerde kullanabilmek için geri atandı.\r",
+									"    pm.environment.set('board_id', pm.environment.get('temporary_variable_board_id'));\r",
+									"}\r",
+									"\r",
+									"// invalid id 400\r",
+									"pm.execution.setNextRequest('[BOARD] Get Lists on a Board')\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "https://api.trello.com/1/boards/:board_id/lists?key={{key}}&token={{token}}",
+							"protocol": "https",
+							"host": [
+								"api",
+								"trello",
+								"com"
+							],
+							"path": [
+								"1",
+								"boards",
+								":board_id",
+								"lists"
+							],
+							"query": [
+								{
+									"key": "key",
+									"value": "{{key}}"
+								},
+								{
+									"key": "token",
+									"value": "{{token}}"
+								}
+							],
+							"variable": [
+								{
+									"key": "board_id",
+									"value": "{{board_id}}"
+								}
+							]
+						},
+						"description": "Generated from cURL: curl --request GET \\\r\n  --url 'https://api.trello.com/1/boards/{id}/lists?key=APIKey&token=APIToken' \\\r\n  --header 'Accept: application/json'"
+					},
+					"response": []
+				},
+				{
+					"name": "[BOARD] Create a Label on a Board",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// oluşturulacak label için renk ismi verilir.\r",
+									"pm.environment.set(\"color_name\", \"blue\")\r",
+									"\r",
+									"pm.environment.set(\"temporary_variable_list_name\", pm.environment.get(\"list_name\"))\r",
+									"\r",
+									"if (pm.environment.get('ortam_degiskeni') === 'happy'){\r",
+									"}\r",
+									"\r",
+									"//sad path - environment:list_name değişkeni değerine: '' atanır. Bunun sebebi başarısız istek atabilmek için boş gönderilmesi gerekiyor.\r",
+									"else if (pm.environment.get('ortam_degiskeni') === 'sad'){\r",
+									"    pm.environment.set(\"list_name\", '')\r",
+									"}\r",
+									"\r",
+									"//400: invalid value for name\r",
+									"\r",
+									"\r",
+									"\r",
+									"//color: 1212 400: {\r",
+									"//    \"message\": \"invalid value for color\",\r",
+									"//    \"error\": \"ERROR\"\r",
+									"//}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "https://api.trello.com/1/boards/:board_id/labels?name=Practicing Label&color={{color_name}}&key={{key}}&token={{token}}",
+							"protocol": "https",
+							"host": [
+								"api",
+								"trello",
+								"com"
+							],
+							"path": [
+								"1",
+								"boards",
+								":board_id",
+								"labels"
+							],
+							"query": [
+								{
+									"key": "name",
+									"value": "Practicing Label"
+								},
+								{
+									"key": "color",
+									"value": "{{color_name}}"
+								},
+								{
+									"key": "key",
+									"value": "{{key}}"
+								},
+								{
+									"key": "token",
+									"value": "{{token}}"
+								}
+							],
+							"variable": [
+								{
+									"key": "board_id",
+									"value": "{{board_id}}"
+								}
+							]
+						},
+						"description": "Generated from cURL: curl --request POST \\\r\n  --url 'https://api.trello.com/1/boards/{id}/labels?name={name}&color={color}&key=APIKey&token=APIToken'"
+					},
+					"response": []
+				},
+				{
+					"name": "[BOARD]Get Labels on a Board",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"//400: invalid"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://api.trello.com/1/boards/:board_id/labels?key={{key}}&token={{token}}",
+							"protocol": "https",
+							"host": [
+								"api",
+								"trello",
+								"com"
+							],
+							"path": [
+								"1",
+								"boards",
+								":board_id",
+								"labels"
+							],
+							"query": [
+								{
+									"key": "key",
+									"value": "{{key}}"
+								},
+								{
+									"key": "token",
+									"value": "{{token}}"
+								}
+							],
+							"variable": [
+								{
+									"key": "board_id",
+									"value": "{{board_id}}"
+								}
+							]
+						},
+						"description": "Generated from cURL: curl --request GET \\\r\n  --url 'https://api.trello.com/1/boards/{id}/labels?key=APIKey&token=APIToken'"
+					},
+					"response": []
+				},
+				{
+					"name": "[BOARD] Invite Member to Board via email",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"//400: {\r",
+									"//    \"message\": \"invalid email address\",\r",
+									"//    \"error\": \"ERROR\"\r",
+									"//}\r",
+									"\r",
+									"//{\r",
+									"//  \"fullName\": 1212\r",
+									"//}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"fullName\": \"Test Practice Name\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://api.trello.com/1/boards/:board_id/members?email=test_automation1df234sdf@gmail.com&key={{key}}&token={{token}}",
+							"protocol": "https",
+							"host": [
+								"api",
+								"trello",
+								"com"
+							],
+							"path": [
+								"1",
+								"boards",
+								":board_id",
+								"members"
+							],
+							"query": [
+								{
+									"key": "email",
+									"value": "test_automation1df234sdf@gmail.com"
+								},
+								{
+									"key": "key",
+									"value": "{{key}}"
+								},
+								{
+									"key": "token",
+									"value": "{{token}}"
+								}
+							],
+							"variable": [
+								{
+									"key": "board_id",
+									"value": "{{board_id}}"
+								}
+							]
+						},
+						"description": "Generated from cURL: curl --request PUT \\\r\n  --url 'https://api.trello.com/1/boards/{id}/members?email={email}&key=APIKey&token=APIToken' \\\r\n  --header 'Content-Type: application/json' \\\r\n  --data '{\r\n  \"fullName\": \"<string>\"\r\n}'"
+					},
+					"response": []
+				},
+				{
+					"name": "[BOARD] Update a Board",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"//STATUS CODE CONTROL\r",
+									"pm.test(\"Response status is 200\", function() {\r",
+									"    pm.response.to.have.status(200)\r",
+									"});\r",
+									"\r",
+									"//RESPONSE TIME CONTROL\r",
+									"pm.test(\"Response latency is acceptable\", function() {\r",
+									"    pm.expect(pm.response.responseTime).to.be.lte(2000)\r",
+									"});\r",
+									"\r",
+									"// VERIFY EXPECTED VALUES ARE AS EXPECTED\r",
+									"pm.test(\"Verify expected values of some fields are matching\", function() {\r",
+									"    const jsonData = pm.response.json();\r",
+									"    const board_id_data = pm.collectionVariables.get('board_id');\r",
+									"    const update_name_data = pm.collectionVariables.get('update_name');\r",
+									"    const update_desc_data = pm.collectionVariables.get('update_desc');\r",
+									"    \r",
+									"    pm.expect(jsonData.id).to.equal(board_id_data)\r",
+									"    pm.expect(jsonData.name).to.equal(update_name_data)\r",
+									"    pm.expect(jsonData.desc).to.equal(update_desc_data)\r",
+									"});\r",
+									"\r",
+									"//HEADERS CONTROL\r",
+									"pm.test(\"Content-Type header is Application/Json\", () =>\r",
+									"{\r",
+									"    pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json');\r",
+									"});\r",
+									"\r",
+									"//SCHEMA CONTROL\r",
+									"pm.test(\"Schema is correct!\", function() \r",
+									"{\r",
+									"    let jsonData = pm.response.json()\r",
+									"    const schema = {\r",
+									"        \"type\": \"object\",\r",
+									"        \"properties\": {\r",
+									"            \"id\": {\r",
+									"                \"type\": \"string\"\r",
+									"            },\r",
+									"            \"name\": {\r",
+									"                \"type\": \"string\"\r",
+									"            },\r",
+									"            \"desc\": {\r",
+									"                \"type\": \"string\"\r",
+									"            },\r",
+									"            \"descData\":{\r",
+									"                \"type\": \"object\",\r",
+									"                \"properties\":{\r",
+									"                    \"emoji\":{\r",
+									"                        \"type\": \"object\"\r",
+									"                    }\r",
+									"                }\r",
+									"            },\r",
+									"            \"closed\": {\r",
+									"                \"type\": \"boolean\"\r",
+									"            },\r",
+									"            \"idOrganization\": {\r",
+									"                \"type\": \"string\"\r",
+									"            },\r",
+									"            \"idEnterprise\": {\r",
+									"                \"oneOf\": [\r",
+									"                    {\"type\": \"string\"},\r",
+									"                    {\"type\": \"null\"},\r",
+									"                ]\r",
+									"            },\r",
+									"            \"pinned\": {\r",
+									"                \"type\": \"boolean\"\r",
+									"            },\r",
+									"            \"url\": {\r",
+									"                \"type\": \"string\"\r",
+									"            },\r",
+									"            \"shortUrl\": {\r",
+									"                \"type\": \"string\"\r",
+									"            },\r",
+									"            \"prefs\": {\r",
+									"                \"type\": \"object\",\r",
+									"                \"properties\":{\r",
+									"                    \"permissionLevel\":{\r",
+									"                        \"type\": \"string\"\r",
+									"                    },\r",
+									"                    \"hideVotes\":{\r",
+									"                        \"type\": \"boolean\"\r",
+									"                    }, \r",
+									"                    \"voting\":{\r",
+									"                        \"type\": \"string\"\r",
+									"                    },\r",
+									"                    \"comments\":{\r",
+									"                        \"type\": \"string\"\r",
+									"                    },\r",
+									"                    \"invitations\":{\r",
+									"                        \"type\": \"string\"\r",
+									"                    },\r",
+									"                    \"selfJoin\":{\r",
+									"                        \"type\": \"boolean\"\r",
+									"                    },\r",
+									"                    \"cardCovers\":{\r",
+									"                        \"type\": \"boolean\"\r",
+									"                    },                \r",
+									"                    \"cardCounts\":{\r",
+									"                        \"type\": \"boolean\"\r",
+									"                    },                  \r",
+									"                    \"isTemplate\":{\r",
+									"                        \"type\": \"boolean\"\r",
+									"                    },                   \r",
+									"                    \"cardAging\":{\r",
+									"                        \"type\": \"string\"\r",
+									"                    },            \r",
+									"                    \"calendarFeedEnabled\":{\r",
+									"                        \"type\": \"boolean\"\r",
+									"                    },\r",
+									"                    \"hiddenPluginBoardButtons\":{\r",
+									"                        \"type\": \"array\"\r",
+									"                    },\r",
+									"                    \"switcherViews\":{\r",
+									"                        \"type\": \"array\",\r",
+									"                        \"items\":{\r",
+									"                            \"type\": \"object\",\r",
+									"                            \"properties\": {\r",
+									"                                \"viewType\": {\"type\": \"string\"},\r",
+									"                                \"enabled\": {\"type\": \"boolean\"}\r",
+									"                            },\r",
+									"                            \"required\": [\"viewType\", \"enabled\"]\r",
+									"                        }\r",
+									"                    },\r",
+									"                    \"background\": { \"type\": [\"string\"] },\r",
+									"                \"backgroundColor\": { \"type\": [\"string\"] },\r",
+									"                \"backgroundImage\": {\r",
+									"            \"oneOf\": [\r",
+									"                { \"type\": \"string\" },\r",
+									"                { \"type\": \"null\" }\r",
+									"            ]\r",
+									"        },\r",
+									"                \"backgroundTile\": { \"type\": [\"boolean\"] },\r",
+									"                \"backgroundBrightness\": { \"type\": [\"string\"] },\r",
+									"                \"sharedSourceUrl\": {\r",
+									"            \"oneOf\": [\r",
+									"                { \"type\": \"string\" },\r",
+									"                { \"type\": \"null\" }\r",
+									"            ]\r",
+									"        },\r",
+									"                \"backgroundImageScaled\": {\r",
+									"            \"oneOf\": [\r",
+									"                { \"type\": \"string\" },\r",
+									"                { \"type\": \"null\" }\r",
+									"            ]\r",
+									"        },\r",
+									"                \"backgroundBottomColor\": { \"type\": [\"string\"] },\r",
+									"                \"backgroundTopColor\": { \"type\": [\"string\"] },\r",
+									"                \"canBePublic\": { \"type\": [\"boolean\"] },\r",
+									"                \"canBeEnterprise\": { \"type\": [\"boolean\"] },\r",
+									"                \"canBeOrg\": { \"type\": [\"boolean\"] },\r",
+									"                \"canBePrivate\": { \"type\": [\"boolean\"] },\r",
+									"                \"canInvite\": { \"type\": [\"boolean\"] }\r",
+									"            },\r",
+									"            \"required\": [\r",
+									"                \"permissionLevel\",\r",
+									"                \"hideVotes\",\r",
+									"                \"voting\",\r",
+									"                \"comments\",\r",
+									"                \"invitations\",\r",
+									"                \"selfJoin\",\r",
+									"                \"cardCovers\",\r",
+									"                \"cardCounts\",\r",
+									"                \"isTemplate\",\r",
+									"                \"cardAging\",\r",
+									"                \"calendarFeedEnabled\",\r",
+									"                \"hiddenPluginBoardButtons\",\r",
+									"                \"switcherViews\",\r",
+									"                \"background\",\r",
+									"                \"backgroundColor\",\r",
+									"                \"backgroundTile\",\r",
+									"                \"backgroundBrightness\",\r",
+									"                \"backgroundBottomColor\",\r",
+									"                \"backgroundTopColor\",\r",
+									"                \"canBePublic\",\r",
+									"                \"canBeEnterprise\",\r",
+									"                \"canBeOrg\",\r",
+									"                \"canBePrivate\",\r",
+									"                \"canInvite\"\r",
+									"            ]\r",
+									"        },\r",
+									"        \"labelNames\": {\r",
+									"            \"type\": \"object\",\r",
+									"            \"properties\": {\r",
+									"                \"green\": { \"type\": [\"string\"] },\r",
+									"                \"yellow\": { \"type\": [\"string\"] },\r",
+									"                \"orange\": { \"type\": [\"string\"] },\r",
+									"                \"red\": { \"type\": [\"string\"] },\r",
+									"                \"purple\": { \"type\": [\"string\"] },\r",
+									"                \"blue\": { \"type\": [\"string\"] },\r",
+									"                \"sky\": { \"type\": [\"string\"] },\r",
+									"                \"lime\": { \"type\": [\"string\"] },\r",
+									"                \"pink\": { \"type\": [\"string\"] },\r",
+									"                \"black\": { \"type\": [\"string\"] },\r",
+									"                \"green_dark\": { \"type\": [\"string\"] },\r",
+									"                \"yellow_dark\": { \"type\": [\"string\"] },\r",
+									"                \"orange_dark\": { \"type\": [\"string\"] },\r",
+									"                \"red_dark\": { \"type\": [\"string\"] },\r",
+									"                \"purple_dark\": { \"type\": [\"string\"] },\r",
+									"                \"blue_dark\": { \"type\": [\"string\"] },\r",
+									"                \"sky_dark\": { \"type\": [\"string\"] },\r",
+									"                \"lime_dark\": { \"type\": [\"string\"] },\r",
+									"                \"pink_dark\": { \"type\": [\"string\"] },\r",
+									"                \"black_dark\": { \"type\": [\"string\"] },\r",
+									"                \"green_light\": { \"type\": [\"string\"] },\r",
+									"                \"yellow_light\": { \"type\": [\"string\"] },\r",
+									"                \"orange_light\": { \"type\": [\"string\"] },\r",
+									"                \"red_light\": { \"type\": [\"string\"] },\r",
+									"                \"purple_light\": { \"type\": [\"string\"] },\r",
+									"                \"blue_light\": { \"type\": [\"string\"] },\r",
+									"                \"sky_light\": { \"type\": [\"string\"] },\r",
+									"                \"lime_light\": { \"type\": [\"string\"] },\r",
+									"                \"pink_light\": { \"type\": [\"string\"] },\r",
+									"                \"black_light\": { \"type\": [\"string\"] }\r",
+									"            }\r",
+									"        }\r",
+									"    },\r",
+									"    \"required\": [\r",
+									"        \"id\",\r",
+									"        \"name\",\r",
+									"        \"desc\",\r",
+									"        \"descData\",\r",
+									"        \"closed\",\r",
+									"        \"idOrganization\",\r",
+									"        \"url\",\r",
+									"        \"shortUrl\",\r",
+									"        \"prefs\",\r",
+									"        \"labelNames\"\r",
+									"    ]\r",
+									"};\r",
+									"\r",
+									"    const Ajv = require(\"ajv\");\r",
+									"    const ajv = new Ajv();\r",
+									"\r",
+									"    const validate = ajv.compile(schema);\r",
+									"    const valid = validate(jsonData);\r",
+									"\r",
+									"    pm.expect(valid, validate.errors).to.be.true;\r",
+									"});\r",
+									"\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const characters = 'ACDEFGHI0123456789'\r",
+									"\r",
+									"let randomNameUpdate = '';\r",
+									"let randomDescUpdate = '';\r",
+									"\r",
+									"for(let i=0; i<10; i++){\r",
+									"    randomNameUpdate += characters.charAt(Math.floor(Math.random() * characters.length));\r",
+									"}\r",
+									"\r",
+									"for(let i=0; i<10; i++){\r",
+									"    randomDescUpdate += characters.charAt(Math.floor(Math.random() * characters.length));\r",
+									"}\r",
+									"pm.collectionVariables.set(\"update_name\", randomNameUpdate)\r",
+									"pm.collectionVariables.set(\"update_desc\", randomDescUpdate)"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"{{update_name}}\",\r\n    \"desc\": \"{{update_desc}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://api.trello.com/1/boards/:board_id?token={{token}}",
+							"protocol": "https",
+							"host": [
+								"api",
+								"trello",
+								"com"
+							],
+							"path": [
+								"1",
+								"boards",
+								":board_id"
+							],
+							"query": [
+								{
+									"key": "token",
+									"value": "{{token}}"
+								}
+							],
+							"variable": [
+								{
+									"key": "board_id",
+									"value": "{{board_id}}"
+								}
+							]
+						},
+						"description": "Generated from cURL: curl --request PUT \\\r\n  --url 'https://api.trello.com/1/boards/{id}?key=APIKey&token=APIToken'"
+					},
+					"response": []
+				},
+				{
+					"name": "[BOARD] Get a Specific Field from Board",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://api.trello.com/1/boards/:board_id/:field?key={{key}}&token={{token}}",
+							"protocol": "https",
+							"host": [
+								"api",
+								"trello",
+								"com"
+							],
+							"path": [
+								"1",
+								"boards",
+								":board_id",
+								":field"
+							],
+							"query": [
+								{
+									"key": "key",
+									"value": "{{key}}"
+								},
+								{
+									"key": "token",
+									"value": "{{token}}"
+								}
+							],
+							"variable": [
+								{
+									"key": "board_id",
+									"value": "{{board_id}}"
+								},
+								{
+									"key": "field",
+									"value": "name"
+								}
+							]
+						},
+						"description": "Generated from cURL: curl --request GET \\\r\n  --url 'https://api.trello.com/1/boards/{id}/{field}?key=APIKey&token=APIToken'"
+					},
+					"response": []
+				},
+				{
+					"name": "[BOARD] Get a Card on a Board",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://api.trello.com/1/boards/:board_id/cards/:card_id?key={{key}}&token={{token}}",
+							"protocol": "https",
+							"host": [
+								"api",
+								"trello",
+								"com"
+							],
+							"path": [
+								"1",
+								"boards",
+								":board_id",
+								"cards",
+								":card_id"
+							],
+							"query": [
+								{
+									"key": "key",
+									"value": "{{key}}"
+								},
+								{
+									"key": "token",
+									"value": "{{token}}"
+								}
+							],
+							"variable": [
+								{
+									"key": "board_id",
+									"value": "{{board_id}}"
+								},
+								{
+									"key": "card_id",
+									"value": "67112901f5ba2851a567ef10"
+								}
+							]
+						},
+						"description": "Generated from cURL: curl --request GET \\\r\n  --url 'https://api.trello.com/1/boards/{id}/cards/{idCard}?key=APIKey&token=APIToken'"
+					},
+					"response": []
+				},
+				{
+					"name": "[BOARD] Get all Cards on a Board",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://api.trello.com/1/boards/:board_id/cards?key={{key}}&token={{token}}",
+							"protocol": "https",
+							"host": [
+								"api",
+								"trello",
+								"com"
+							],
+							"path": [
+								"1",
+								"boards",
+								":board_id",
+								"cards"
+							],
+							"query": [
+								{
+									"key": "key",
+									"value": "{{key}}"
+								},
+								{
+									"key": "token",
+									"value": "{{token}}"
+								}
+							],
+							"variable": [
+								{
+									"key": "board_id",
+									"value": "{{board_id}}"
+								}
+							]
+						},
+						"description": "Generated from cURL: curl --request GET \\\r\n  --url 'https://api.trello.com/1/boards/{id}/cards?key=APIKey&token=APIToken'"
+					},
+					"response": []
+				},
+				{
+					"name": "[BOARD] Get the Members of a Board",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://api.trello.com/1/boards/:board_id/members?key={{key}}&token={{token}}",
+							"protocol": "https",
+							"host": [
+								"api",
+								"trello",
+								"com"
+							],
+							"path": [
+								"1",
+								"boards",
+								":board_id",
+								"members"
+							],
+							"query": [
+								{
+									"key": "key",
+									"value": "{{key}}"
+								},
+								{
+									"key": "token",
+									"value": "{{token}}"
+								}
+							],
+							"variable": [
+								{
+									"key": "board_id",
+									"value": "{{board_id}}"
+								}
+							]
+						},
+						"description": "Generated from cURL: curl --request GET \\\r\n  --url 'https://api.trello.com/1/boards/{id}/members?key=APIKey&token=APIToken'"
+					},
+					"response": []
+				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "List Requests",
+			"item": [
+				{
+					"name": "[LIST] Create a New List",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "https://api.trello.com/1/lists?name=Its a new List&idBoard={{board_id}}&key={{key}}&token={{token}}",
+							"protocol": "https",
+							"host": [
+								"api",
+								"trello",
+								"com"
+							],
+							"path": [
+								"1",
+								"lists"
+							],
+							"query": [
+								{
+									"key": "name",
+									"value": "Its a new List"
+								},
+								{
+									"key": "idBoard",
+									"value": "{{board_id}}"
+								},
+								{
+									"key": "key",
+									"value": "{{key}}"
+								},
+								{
+									"key": "token",
+									"value": "{{token}}"
+								}
+							]
+						},
+						"description": "Generated from cURL: curl --request POST \\\r\n  --url 'https://api.trello.com/1/lists?name={name}&idBoard=5abbe4b7ddc1b351ef961414&key=APIKey&token=APIToken'"
+					},
+					"response": []
+				},
+				{
+					"name": "[LIST] Get a List",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://api.trello.com/1/lists/:list_id?key={{key}}&token={{token}}",
+							"protocol": "https",
+							"host": [
+								"api",
+								"trello",
+								"com"
+							],
+							"path": [
+								"1",
+								"lists",
+								":list_id"
+							],
+							"query": [
+								{
+									"key": "key",
+									"value": "{{key}}"
+								},
+								{
+									"key": "token",
+									"value": "{{token}}"
+								}
+							],
+							"variable": [
+								{
+									"key": "list_id",
+									"value": "{{list_id}}"
+								}
+							]
+						},
+						"description": "Generated from cURL: curl --request GET \\\r\n  --url 'https://api.trello.com/1/lists/{id}?key=APIKey&token=APIToken'"
+					},
+					"response": []
+				},
+				{
+					"name": "[LIST]Update a List",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "https://api.trello.com/1/lists/:list_id?key={{key}}&token={{token}}&name=Updated Name for The List",
+							"protocol": "https",
+							"host": [
+								"api",
+								"trello",
+								"com"
+							],
+							"path": [
+								"1",
+								"lists",
+								":list_id"
+							],
+							"query": [
+								{
+									"key": "key",
+									"value": "{{key}}"
+								},
+								{
+									"key": "token",
+									"value": "{{token}}"
+								},
+								{
+									"key": "name",
+									"value": "Updated Name for The List"
+								}
+							],
+							"variable": [
+								{
+									"key": "list_id",
+									"value": "{{list_id}}"
+								}
+							]
+						},
+						"description": "Generated from cURL: curl --request PUT \\\r\n  --url 'https://api.trello.com/1/lists/{id}?key=APIKey&token=APIToken'"
+					},
+					"response": []
+				},
+				{
+					"name": "[LIST] Get Cards in a List",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "https://api.trello.com/1/lists/:list_id/cards?key={{key}}&token={{token}}",
+							"protocol": "https",
+							"host": [
+								"api",
+								"trello",
+								"com"
+							],
+							"path": [
+								"1",
+								"lists",
+								":list_id",
+								"cards"
+							],
+							"query": [
+								{
+									"key": "key",
+									"value": "{{key}}"
+								},
+								{
+									"key": "token",
+									"value": "{{token}}"
+								}
+							],
+							"variable": [
+								{
+									"key": "list_id",
+									"value": "{{list_id}}"
+								}
+							]
+						},
+						"description": "Generated from cURL: curl --request GET \\\r\n  --url 'https://api.trello.com/1/lists/{id}/cards?key=APIKey&token=APIToken' \\\r\n  --header 'Accept: application/json'"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Card Requests",
+			"item": [
+				{
+					"name": "[CARD] Create a new Card",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"A new card for new List-2\",\r\n    \"desc\": \"This is the description for the card.-2\",\r\n    \"idList\": \"{{list_id}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://api.trello.com/1/cards?&key={{key}}&token={{token}}",
+							"protocol": "https",
+							"host": [
+								"api",
+								"trello",
+								"com"
+							],
+							"path": [
+								"1",
+								"cards"
+							],
+							"query": [
+								{
+									"key": null,
+									"value": null
+								},
+								{
+									"key": "key",
+									"value": "{{key}}"
+								},
+								{
+									"key": "token",
+									"value": "{{token}}"
+								}
+							]
+						},
+						"description": "Generated from cURL: curl --request POST \\\r\n  --url 'https://api.trello.com/1/cards?idList=5abbe4b7ddc1b351ef961414&key=APIKey&token=APIToken' \\\r\n  --header 'Accept: application/json'"
+					},
+					"response": []
+				},
+				{
+					"name": "[CARD] Get a Card",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://api.trello.com/1/cards/:card_id?key={{key}}&token={{token}}&fields=idLabels,idMembers",
+							"protocol": "https",
+							"host": [
+								"api",
+								"trello",
+								"com"
+							],
+							"path": [
+								"1",
+								"cards",
+								":card_id"
+							],
+							"query": [
+								{
+									"key": "key",
+									"value": "{{key}}"
+								},
+								{
+									"key": "token",
+									"value": "{{token}}"
+								},
+								{
+									"key": "fields",
+									"value": "idLabels,idMembers"
+								}
+							],
+							"variable": [
+								{
+									"key": "card_id",
+									"value": "{{card_id}}"
+								}
+							]
+						},
+						"description": "Generated from cURL: curl --request GET \\\r\n  --url 'https://api.trello.com/1/cards/{id}?key=APIKey&token=APIToken' \\\r\n  --header 'Accept: application/json'"
+					},
+					"response": []
+				},
+				{
+					"name": "[CARD] Update a Card",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "https://api.trello.com/1/cards/:card_id?key={{key}}&token={{token}}&name=UpdatedCardName",
+							"protocol": "https",
+							"host": [
+								"api",
+								"trello",
+								"com"
+							],
+							"path": [
+								"1",
+								"cards",
+								":card_id"
+							],
+							"query": [
+								{
+									"key": "key",
+									"value": "{{key}}"
+								},
+								{
+									"key": "token",
+									"value": "{{token}}"
+								},
+								{
+									"key": "name",
+									"value": "UpdatedCardName"
+								}
+							],
+							"variable": [
+								{
+									"key": "card_id",
+									"value": "{{card_id}}"
+								}
+							]
+						},
+						"description": "Generated from cURL: curl --request PUT \\\r\n  --url 'https://api.trello.com/1/cards/{id}?key=APIKey&token=APIToken' \\\r\n  --header 'Accept: application/json'"
+					},
+					"response": []
+				},
+				{
+					"name": "[CARD-CHECKLIST] Create a Checklist in a Card",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "https://api.trello.com/1/cards/:card_id/checklists?key={{key}}&token={{token}}&name=New Checklist",
+							"protocol": "https",
+							"host": [
+								"api",
+								"trello",
+								"com"
+							],
+							"path": [
+								"1",
+								"cards",
+								":card_id",
+								"checklists"
+							],
+							"query": [
+								{
+									"key": "key",
+									"value": "{{key}}"
+								},
+								{
+									"key": "token",
+									"value": "{{token}}"
+								},
+								{
+									"key": "name",
+									"value": "New Checklist"
+								}
+							],
+							"variable": [
+								{
+									"key": "card_id",
+									"value": "{{card_id}}"
+								}
+							]
+						},
+						"description": "Generated from cURL: curl --request POST \\\r\n  --url 'https://api.trello.com/1/cards/{id}/checklists?key=APIKey&token=APIToken'"
+					},
+					"response": []
+				},
+				{
+					"name": "[CARD-CHECKLIST-CHECKITEM] Create a CheckItem on a Checklist",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "https://api.trello.com/1/checklists/:checklist_id/checkItems?name=BJK&key={{key}}&token={{token}}",
+							"protocol": "https",
+							"host": [
+								"api",
+								"trello",
+								"com"
+							],
+							"path": [
+								"1",
+								"checklists",
+								":checklist_id",
+								"checkItems"
+							],
+							"query": [
+								{
+									"key": "name",
+									"value": "BJK"
+								},
+								{
+									"key": "key",
+									"value": "{{key}}"
+								},
+								{
+									"key": "token",
+									"value": "{{token}}"
+								}
+							],
+							"variable": [
+								{
+									"key": "checklist_id",
+									"value": "{{checklist_id}}"
+								}
+							]
+						},
+						"description": "Generated from cURL: curl --request POST \\\r\n  --url 'https://api.trello.com/1/checklists/{id}/checkItems?name={name}&key=APIKey&token=APIToken'"
+					},
+					"response": []
+				},
+				{
+					"name": "[CARD-CHECKLIST] Get a Checklist",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://api.trello.com/1/checklists/:checklist?key={{key}}&token={{token}}",
+							"protocol": "https",
+							"host": [
+								"api",
+								"trello",
+								"com"
+							],
+							"path": [
+								"1",
+								"checklists",
+								":checklist"
+							],
+							"query": [
+								{
+									"key": "key",
+									"value": "{{key}}"
+								},
+								{
+									"key": "token",
+									"value": "{{token}}"
+								}
+							],
+							"variable": [
+								{
+									"key": "checklist",
+									"value": "{{checklist_id}}"
+								}
+							]
+						},
+						"description": "Generated from cURL: curl --request GET \\\r\n  --url 'https://api.trello.com/1/checklists/{id}?key=APIKey&token=APIToken'"
+					},
+					"response": []
+				},
+				{
+					"name": "[CARD-CHECKLIST] Get checkitems in a Checklist",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://api.trello.com/1/checklists/:checklist_id/checkItems?key={{key}}&token={{token}}&fields=name,nameData,pos",
+							"protocol": "https",
+							"host": [
+								"api",
+								"trello",
+								"com"
+							],
+							"path": [
+								"1",
+								"checklists",
+								":checklist_id",
+								"checkItems"
+							],
+							"query": [
+								{
+									"key": "key",
+									"value": "{{key}}"
+								},
+								{
+									"key": "token",
+									"value": "{{token}}"
+								},
+								{
+									"key": "fields",
+									"value": "name,nameData,pos"
+								}
+							],
+							"variable": [
+								{
+									"key": "checklist_id",
+									"value": "{{checklist_id}}"
+								}
+							]
+						},
+						"description": "Generated from cURL: curl --request GET \\\r\n  --url 'https://api.trello.com/1/checklists/{id}/checkItems?key=APIKey&token=APIToken'"
+					},
+					"response": []
+				},
+				{
+					"name": "[CARD-CHECKLIST] Update a field on Checklist",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "https://api.trello.com/1/checklists/:checklist_id/:field_id?value=34512312&key={{key}}&token={{token}}",
+							"protocol": "https",
+							"host": [
+								"api",
+								"trello",
+								"com"
+							],
+							"path": [
+								"1",
+								"checklists",
+								":checklist_id",
+								":field_id"
+							],
+							"query": [
+								{
+									"key": "value",
+									"value": "34512312"
+								},
+								{
+									"key": "key",
+									"value": "{{key}}"
+								},
+								{
+									"key": "token",
+									"value": "{{token}}"
+								}
+							],
+							"variable": [
+								{
+									"key": "checklist_id",
+									"value": "{{checklist_id}}"
+								},
+								{
+									"key": "field_id",
+									"value": "pos"
+								}
+							]
+						},
+						"description": "Generated from cURL: curl --request PUT \\\r\n  --url 'https://api.trello.com/1/checklists/{id}/{field}?value={value}&key=APIKey&token=APIToken'"
+					},
+					"response": []
+				},
+				{
+					"name": "[CARD-CHECKITEM] Update a CheckItem on a Card",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "https://api.trello.com/1/cards/:card_id/checkItem/:checkitem_id?key={{key}}&token={{token}}&name=Yeni check item BJK'nin yerine",
+							"protocol": "https",
+							"host": [
+								"api",
+								"trello",
+								"com"
+							],
+							"path": [
+								"1",
+								"cards",
+								":card_id",
+								"checkItem",
+								":checkitem_id"
+							],
+							"query": [
+								{
+									"key": "key",
+									"value": "{{key}}"
+								},
+								{
+									"key": "token",
+									"value": "{{token}}"
+								},
+								{
+									"key": "name",
+									"value": "Yeni check item BJK'nin yerine"
+								}
+							],
+							"variable": [
+								{
+									"key": "card_id",
+									"value": "{{card_id}}"
+								},
+								{
+									"key": "checkitem_id",
+									"value": "6714fc90242274854e471668"
+								}
+							]
+						},
+						"description": "Generated from cURL: curl --request PUT \\\r\n  --url 'https://api.trello.com/1/cards/{id}/checkItem/{idCheckItem}?key=APIKey&token=APIToken'"
+					},
+					"response": []
+				},
+				{
+					"name": "[CARD-STICKER] Create a New Sticker",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "https://api.trello.com/1/cards/:cards_id/stickers?image=taco-cool&top=20&left=20&zIndex=999&key={{key}}&token={{token}}",
+							"protocol": "https",
+							"host": [
+								"api",
+								"trello",
+								"com"
+							],
+							"path": [
+								"1",
+								"cards",
+								":cards_id",
+								"stickers"
+							],
+							"query": [
+								{
+									"key": "image",
+									"value": "taco-cool"
+								},
+								{
+									"key": "top",
+									"value": "20"
+								},
+								{
+									"key": "left",
+									"value": "20"
+								},
+								{
+									"key": "zIndex",
+									"value": "999"
+								},
+								{
+									"key": "key",
+									"value": "{{key}}"
+								},
+								{
+									"key": "token",
+									"value": "{{token}}"
+								}
+							],
+							"variable": [
+								{
+									"key": "cards_id",
+									"value": "{{card_id}}"
+								}
+							]
+						},
+						"description": "Generated from cURL: curl --request POST \\\r\n  --url 'https://api.trello.com/1/cards/{id}/stickers?image={image}&top={top}&left={left}&zIndex={zIndex}&key=APIKey&token=APIToken'"
+					},
+					"response": []
+				},
+				{
+					"name": "[CARD-COMMENT] Create a New Comment to a Card",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "https://api.trello.com/1/cards/:card_id/actions/comments?text=Bu benim ilk commentim BE ile attığım.&key={{key}}&token={{token}}",
+							"protocol": "https",
+							"host": [
+								"api",
+								"trello",
+								"com"
+							],
+							"path": [
+								"1",
+								"cards",
+								":card_id",
+								"actions",
+								"comments"
+							],
+							"query": [
+								{
+									"key": "text",
+									"value": "Bu benim ilk commentim BE ile attığım."
+								},
+								{
+									"key": "key",
+									"value": "{{key}}"
+								},
+								{
+									"key": "token",
+									"value": "{{token}}"
+								}
+							],
+							"variable": [
+								{
+									"key": "card_id",
+									"value": "{{card_id}}"
+								}
+							]
+						},
+						"description": "Generated from cURL: curl --request POST \\\r\n  --url 'https://api.trello.com/1/cards/{id}/actions/comments?text={text}&key=APIKey&token=APIToken' \\\r\n  --header 'Accept: application/json'"
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "apikey",
+		"apikey": {
+			"value": "{{key}}",
+			"in": "query",
+			"key": "key"
+		}
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "key",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "board_id",
+			"value": "671105356df283053aec9dd4",
+			"type": "string"
+		},
+		{
+			"key": "list_id",
+			"value": "671398c9605e97daa05b7a7a",
+			"type": "string"
+		},
+		{
+			"key": "card_id",
+			"value": "6714f8887cb892619507d797",
+			"type": "string"
+		},
+		{
+			"key": "checklist_id",
+			"value": "6714fbb38508172289664ee8",
+			"type": "string"
+		},
+		{
+			"key": "board_name",
+			"value": "Bu Board Name'in Initial Value'sudur.",
+			"type": "string"
+		},
+		{
+			"key": "update_name",
+			"value": "Name",
+			"type": "string"
+		},
+		{
+			"key": "update_desc",
+			"value": "Description",
+			"type": "string"
+		},
+		{
+			"key": "env",
+			"value": "happy_path",
+			"type": "string"
+		},
+		{
+			"key": "list_name",
+			"value": "List Name on a Board",
+			"type": "string"
+		}
+	]
+}
